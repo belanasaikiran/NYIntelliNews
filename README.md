@@ -24,3 +24,12 @@ Input for Llama
   }
 ]
 ```
+
+Curl request:
+
+```bash
+curl -X POST http://localhost:3000/summarize \
+  -H "Content-Type: application/json" \
+  -d '{"title": "Apple New iOS Update Brings Advanced AI Features", "url": "https://nytimes.com/ai-ios-update", "publisher": "New York Times"}'
+
+```
