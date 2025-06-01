@@ -1,23 +1,26 @@
 const express = require("express");
-const fetchNewsByCategory = require("./services/nyt");
-const summarizeArticles = require("./services/llama");
+const { fetchRelatedNews } = require("./newsFetcher");
+const { generateSummary } = require("./llama");
 
 const app = express();
-const PORT = 3000;
+app.use(express.json());
 
-app.get("/summarize", async (req, res) => {
-  const category = req.query.category || "technology";
-
+app.post("/summarize", async (req, res) => {
+  const input = req.body;
+  console.log("Received Input:", input);
   try {
-    const news = await fetchNewsByCategory(category);
-    const summary = await summarizeArticles(news, category);
-    res.json({ category, summary, links: news.map((n) => n.url) });
+    const GetrelatedArticles = await fetchRelatedNews(input.title);
+    const relatedArticles = GetrelatedArticles.articles;
+    const summary = await generateSummary(input, relatedArticles);
+    console.log("Summary Generated:", summary);
+
+    res.json({ summary });
   } catch (error) {
-    console.error(error.message);
+    console.error("Error:", error.message);
     res.status(500).json({ error: "Something went wrong" });
   }
 });
 
-app.listen(PORT, () => {
-  console.log(`Server running on http://localhost:${PORT}`);
+app.listen(3000, () => {
+  console.log("Server running on http://localhost:3000");
 });
