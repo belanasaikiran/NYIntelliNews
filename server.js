@@ -102,7 +102,7 @@ app.post("/summarize", async (req, res) => {
     console.log(extractedArticles);
 
     // Step 3: Generate summary using LLaMA
-    const summary = await generateSummary(input, extractedArticles);
+    const summary = await generateSummary(input, extractedArticles, input.language || "English");
 
     console.log("Summary Generated:", summary);
 
