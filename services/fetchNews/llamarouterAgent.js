@@ -11,14 +11,36 @@ const trustedPublishers = new Set([
 ]);
 
 export const handleNewsPipeline = async (req, res) => {
-  const { prompt } = req.body;
+  const { prompt, image } = req.body;
 
-  if (!prompt || typeof prompt !== 'string') {
+  try {
+
+    if(!prompt && image) {
+      const visionRes = await llama.chat.completions.create({
+        model: 'Llama-4-Maverick-17B-128E-Instruct-FP8',
+        messages: [{
+          role: "user",
+          content: [
+            { type: "text", text: "Extract a concise news-style search phrase from this image. Be specific and skip descriptions." },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/jpeg;base64,${image}`,
+              },
+            },
+          ],
+        }],
+      });
+
+      prompt = visionRes.completion_message.content.text.trim();
+      console.log("📰 Extracted Prompt from Image:", prompt);
+    }
+    
+
+     if (!prompt || typeof prompt !== 'string') {
     return res.status(400).json({ error: 'Invalid or missing "prompt"' });
   }
 
-  try {
-    
    const routingPrompt = `
 Given the user query: "${prompt}"
 Choose which of these sources to call: "nyt_top", "nyt_search", "google".
