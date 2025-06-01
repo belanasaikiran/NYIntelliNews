@@ -21,6 +21,7 @@ export const generateSummary = async (input, relatedArticles) => {
 You are a professional news anchor AI.
 
 You will be given a news headline and a few related articles from trusted sources. Your task is to write a 3-paragraph newsreader-style summary in a calm and articulate tone suitable for video narration.
+Directly give the script. No additional stuff like here's a summary
 
 Main Title:
 "${input.title}"
