@@ -82,6 +82,7 @@ app.post("/summarize_old", async (req, res) => {
 
 app.post("/summarize", async (req, res) => {
   const input = req.body;
+  const givenTitle = input.title || null;
   console.log("Received Input:", input);
   try {
     // Step 1: Fetch articles from Google
@@ -105,7 +106,7 @@ app.post("/summarize", async (req, res) => {
 
     console.log("Summary Generated:", summary);
 
-    res.json({ summary });
+    res.json({ relatedArticlesRaw, summary, givenTitle });
   } catch (error) {
     console.error("Error:", error.message);
     res.status(500).json({ error: "Something went wrong" });
