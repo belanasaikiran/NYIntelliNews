@@ -1,6 +1,7 @@
 import LlamaAPIClient from 'llama-api-client';
 import { fetchFromNYT } from './fetchFromNYT.js';
 import { fetchFromGoogle } from './fetchfromGoogle.js';
+import { pageContentExtractor } from '../summarizers/pageContentExtractor.js';
 
 const llama = new LlamaAPIClient({ apiKey: process.env.LLAMA_API_KEY });
 
@@ -71,12 +72,23 @@ No explanation, no extra text.
       isTrusted: trustedPublishers.has(article.publisher)
     }));
 
+    const articlesWithContent = await Promise.all(
+      enrichedArticles.slice(0, 50).map(async (article) => {
+        const fullText = await pageContentExtractor(article.title, article.url);
+        return {
+          ...article,
+          content: fullText,
+    };
+  })
+);
+
     // Step 4: Score relevance and trust
 
     const scoringPrompt = `
 Given the following news articles (as JSON) and the user prompt: "${prompt}", evaluate each article for:
 1. Relevance to the user prompt.
 2. Source credibility (isTrusted: true or false).
+3. Quality of content (based on actual text).
 
 For each article, assign a confidenceScore between 0.0 and 1.0.
 
@@ -94,7 +106,7 @@ Return ONLY a JSON array in this format (no explanation, no markdown, no extra t
 Only include up to 15 articles.
 
 Articles:
-${JSON.stringify(enrichedArticles.slice(0, 15), null, 2)}
+${JSON.stringify(articlesWithContent, null, 2)}
 `.trim();
     
     
@@ -106,6 +118,7 @@ ${JSON.stringify(enrichedArticles.slice(0, 15), null, 2)}
       messages: [{ role: 'user', content: [{ type: 'text', text: scoringPrompt }] }]
     });
     
+    console.log(scoreRes)
 
     let scoredArticles = [];
     try {
