@@ -7,11 +7,20 @@ import { handleNewsPipeline } from "./services/fetchNews/llamarouterAgent.js";
 import { fetchRelatedNews } from "./newsFetcher.js";
 import { generateSummary } from "./llama.js";
 import { pageContentExtractor } from "./services/summarizers/pageContentExtractor.js";
+import cors from "cors";
 
 dotenv.config();
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 8000;
+
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    methods: ["GET", "POST"],
+    credentials: true,
+  }),
+);
 
 app.use(bodyParser.json());
 
