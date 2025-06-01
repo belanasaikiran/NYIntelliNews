@@ -1,7 +1,9 @@
-const axios = require("axios");
-require("dotenv").config();
+import axios from "axios";
+import dotenv from "dotenv";
 
-async function fetchRelatedNews(title) {
+dotenv.config();
+
+export const fetchRelatedNews = async (title) => {
   const url = `https://newsapi.org/v2/everything?q=${encodeURIComponent(title)}&language=en`;
 
   console.log("Fetching related news for:", title);
@@ -14,6 +16,4 @@ async function fetchRelatedNews(title) {
   console.log("response:", response.data);
 
   return response.data; // Return top 3 related articles
-}
-
-module.exports = { fetchRelatedNews };
+};

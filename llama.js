@@ -1,7 +1,7 @@
-const dotenv = require("dotenv");
+import dotenv from "dotenv";
 dotenv.config();
 
-const LlamaAPIClient = require("llama-api-client");
+import LlamaAPIClient from "llama-api-client";
 
 if (!process.env.LLAMA_API_KEY) {
   throw new Error("LLAMA_API_KEY is not set in environment variables");
@@ -12,7 +12,7 @@ const client = new LlamaAPIClient({
   apiKey: process.env.LLAMA_API_KEY,
 });
 
-const generateSummary = async (input, relatedArticles) => {
+export const generateSummary = async (input, relatedArticles) => {
   const relatedTitles = relatedArticles
     .map((a) => `- ${a.title} (${a.source?.name || "Unknown"})`)
     .join("\n");
@@ -60,5 +60,3 @@ Keep it concise, clear, and fact-based.
     return "Summary generation failed. Please try again.";
   }
 };
-
-module.exports = { generateSummary };
