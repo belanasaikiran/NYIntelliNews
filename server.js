@@ -5,6 +5,7 @@ import { fetchFromGoogle } from "./services/fetchNews/fetchfromGoogle.js";
 import { fetchFromNYT } from "./services/fetchNews/fetchFromNYT.js";
 import { handleNewsPipeline } from "./services/fetchNews/llamarouterAgent.js";
 import { fetchRelatedNews } from "./newsFetcher.js";
+import { generateSummary } from "./llama.js";
 
 dotenv.config();
 
