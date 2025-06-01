@@ -1,5 +1,9 @@
 # NY IntelliNews
 
+### Front End:
+
+[Front End UI](https://github.com/belanasaikiran/NYIntelliNews-UI)
+
 
 Input for Llama
 ```json
