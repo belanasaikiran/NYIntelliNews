@@ -7,12 +7,19 @@ import { handleNewsPipeline } from "./services/fetchNews/llamarouterAgent.js";
 import { fetchRelatedNews } from "./newsFetcher.js";
 import { generateSummary } from "./llama.js";
 import { pageContentExtractor } from "./services/summarizers/pageContentExtractor.js";
+import {
+  createTavusConversation,
+  sendMessage,
+} from "./services/tavusVideogen/talkToTagos.js";
 import cors from "cors";
 
 dotenv.config();
 
 const app = express();
 const PORT = process.env.PORT || 8000;
+
+let globalConvId = "";
+let globalConvURL = "";
 
 app.use(
   cors({
@@ -23,6 +30,17 @@ app.use(
 );
 
 app.use(bodyParser.json());
+
+app.get("/api/initConv", async (req, res) => {
+  const initConversation = await createTavusConversation();
+  globalConvId = initConversation.conversationId;
+  globalConvURL = initConversation.conversationUrl;
+  res.status(200).json({ url: globalConvURL });
+});
+
+app.get("/api/getConversation", async (req, res) => {
+  res.status(200).json({ url: globalConvURL, id: globalConvId });
+});
 
 app.post("/api/google-news", async (req, res) => {
   const { query, numResults } = req.body;
@@ -102,9 +120,15 @@ app.post("/summarize", async (req, res) => {
     console.log(extractedArticles);
 
     // Step 3: Generate summary using LLaMA
-    const summary = await generateSummary(input, extractedArticles, input.language || "English");
+    const summary = await generateSummary(
+      input,
+      extractedArticles,
+      input.language || "English",
+    );
 
     console.log("Summary Generated:", summary);
+
+    await sendMessage(globalConvId, globalConvURL, summary);
 
     res.json({ relatedArticlesRaw, summary, givenTitle });
   } catch (error) {
@@ -112,8 +136,6 @@ app.post("/summarize", async (req, res) => {
     res.status(500).json({ error: "Something went wrong" });
   }
 });
-
-
 
 app.listen(PORT, () => {
   console.log(`🚀 Server is running on http://localhost:${PORT}`);
