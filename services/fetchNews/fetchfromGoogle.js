@@ -7,7 +7,7 @@ const GOOGLE_API_KEY = process.env.GOOGLE_API_KEY;
 const GOOGLE_CSE_ID = process.env.GOOGLE_CSE_ID;
 
 
-export const fetchFromGoogle = async (query, numResults = 10) => {
+export const fetchFromGoogle = async (query, numResults = 30) => {
   const url = 'https://www.googleapis.com/customsearch/v1'
   try{
     const res = await axios.get(url, {

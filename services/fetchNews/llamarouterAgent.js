@@ -17,68 +17,106 @@ export const handleNewsPipeline = async (req, res) => {
   }
 
   try {
-    const routingPrompt = `
-You are a smart router. Decide which of the following sources should be called for the user query:
-Prompt: "${prompt}"
-Available sources: "nyt_top", "nyt_search", "google"
-Return JSON: { "sourcesToCall": ["..."] }
-    `.trim();
+    
+   const routingPrompt = `
+Given the user query: "${prompt}"
+Choose which of these sources to call: "nyt_top", "nyt_search", "google".
+Return ONLY a JSON object in this format: { "sourcesToCall": ["..."] }
+No explanation, no extra text.
+`.trim();
+
 
     const routingRes = await llama.chat.completions.create({
       model: 'Llama-4-Maverick-17B-128E-Instruct-FP8',
       messages: [{ role: 'user', content: [{ type: 'text', text: routingPrompt }] }]
     });
 
-    const { sourcesToCall } = JSON.parse(routingRes.choices[0].message.content);
-
-    let allArticles = [];
-
-    if (sourcesToCall.includes('nyt_top')) {
-      const nytTop = await fetchFromNYT(prompt, 'today');
-      allArticles.push(...nytTop);
+   
+    let sources=[]
+   
+    try {
+      const parsed = JSON.parse(routingRes.completion_message.content.text);
+      sources = parsed.sourcesToCall;
+    
+      
+      
+    } catch (e) {
+      console.error("LLaMA routing JSON parse error:", e.message);
+      return res.status(500).json({ error: "LLaMA routing response malformed" });
     }
 
-    if (sourcesToCall.includes('nyt_search')) {
+    // Step 2: Fetch news
+    let allArticles = [];
+
+    if (sources.includes('nyt_top')) {
+      const nytTop = await fetchFromNYT(prompt, 'top');
+      allArticles.push(...nytTop);
+      
+    }
+
+    if (sources.includes('nyt_search')) {
       const nytSearch = await fetchFromNYT(prompt, null);
       allArticles.push(...nytSearch);
     }
 
-    if (sourcesToCall.includes('google')) {
-      const googleResults = await fetchFromGoogle(prompt);
+    if (sources.includes('google')) {
+      const googleResults = await fetchFromGoogle(prompt, 10);
       allArticles.push(...googleResults);
+    
     }
 
+    // Step 3: Enrich with trust label
     const enrichedArticles = allArticles.map(article => ({
       ...article,
       isTrusted: trustedPublishers.has(article.publisher)
     }));
 
-    const scoringPrompt = `
-You are a news evaluator AI. Evaluate each article based on:
-1. Relevance to this user prompt: "${prompt}"
-2. Source credibility from "isTrusted": true or false
+    // Step 4: Score relevance and trust
 
-Return JSON:
+    const scoringPrompt = `
+Given the following news articles (as JSON) and the user prompt: "${prompt}", evaluate each article for:
+1. Relevance to the user prompt.
+2. Source credibility (isTrusted: true or false).
+
+For each article, assign a confidenceScore between 0.0 and 1.0.
+
+Return ONLY a JSON array in this format (no explanation, no markdown, no extra text):
+
 [
   {
     "title": "...",
     "url": "...",
     "publisher": "...",
-    "confidenceScore": 0.0 - 1.0
+    "confidenceScore": 0.0
   }
 ]
 
 Only include up to 15 articles.
+
 Articles:
 ${JSON.stringify(enrichedArticles.slice(0, 15), null, 2)}
-    `.trim();
+`.trim();
+    
+    
+
+
 
     const scoreRes = await llama.chat.completions.create({
       model: 'Llama-4-Maverick-17B-128E-Instruct-FP8',
       messages: [{ role: 'user', content: [{ type: 'text', text: scoringPrompt }] }]
     });
+    
 
-    const scoredArticles = JSON.parse(scoreRes.choices[0].message.content);
+    let scoredArticles = [];
+    try {
+      scoredArticles = JSON.parse(scoreRes.completion_message.content.text);
+      
+
+    } catch (e) {
+      console.error("LLaMA scoring JSON parse error:", e.message);
+      return res.status(500).json({ error: "LLaMA scoring response malformed" });
+    }
+
     res.json({ results: scoredArticles });
   } catch (err) {
     console.error("News pipeline error:", err.message);

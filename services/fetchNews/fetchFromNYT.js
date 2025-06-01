@@ -14,7 +14,7 @@ export const fetchFromNYT = async (query, mode) => {
 
   try {
     if (mode === "top") {
-      // Use Top Stories API
+      // Use Top Stories API for predefined sections
       const section = validSections.includes(query.toLowerCase()) ? query.toLowerCase() : "home";
       const url = `https://api.nytimes.com/svc/topstories/v2/${section}.json?api-key=${key}`;
       const res = await axios.get(url);
@@ -26,8 +26,9 @@ export const fetchFromNYT = async (query, mode) => {
         category: section
       }));
     } else {
-      // Use Article Search API
-      const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json?api-key=${key}`;
+      // Use Article Search API with filter and search query
+      const url = `https://api.nytimes.com/svc/search/v2/articlesearch.json`;
+
       const res = await axios.get(url, {
         params: {
           q: query,
@@ -38,10 +39,10 @@ export const fetchFromNYT = async (query, mode) => {
       });
 
       return res.data.response.docs.map(article => ({
-        title: article.headline.main,
+        title: article.headline?.main || "Untitled",
         url: article.web_url,
         publisher: "New York Times",
-        category: "custom"
+        category: article.section_name || "custom"
       }));
     }
   } catch (err) {
