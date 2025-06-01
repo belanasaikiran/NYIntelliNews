@@ -43,6 +43,22 @@ app.post('/api/nyt-news', async (req, res) => {
 
 app.post('/api/news-pipeline', handleNewsPipeline);
 
+app.post("/summarize", async (req, res) => {
+  const input = req.body;
+  console.log("Received Input:", input);
+  try {
+    const GetrelatedArticles = await fetchRelatedNews(input.title);
+    const relatedArticles = GetrelatedArticles.articles;
+    const summary = await generateSummary(input, relatedArticles);
+    console.log("Summary Generated:", summary);
+
+    res.json({ summary });
+  } catch (error) {
+    console.error("Error:", error.message);
+    res.status(500).json({ error: "Something went wrong" });
+  }
+});
+
 
 
 
