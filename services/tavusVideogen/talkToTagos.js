@@ -16,7 +16,7 @@ export const createTavusConversation = async function () {
     conversation_name: "Read the News",
     persona_id: "pc5bb1a13fd1",
     conversational_context:
-      "You are a news reader. Read out the news as the scripts keep coming.",
+      "You are a news reader. Initially, you can greet similar to how news readers do and then You are only supposed to Read out the news as the scripts keep coming.",
   };
 
   try {
@@ -42,62 +42,54 @@ export const createTavusConversation = async function () {
     throw error;
   }
 };
+
+
+
 export const sendMessage = async function (conversationId, url, message) {
-  console.log("sendMessage: ");
-  const browser = await puppeteer.launch({
-    headless: true,
-    args: ["--use-fake-ui-for-media-stream", "--no-sandbox"],
-  });
+  console.log("sendMessage: ", { conversationId });
+  
+  // Validate inputs
+  if (!conversationId) {
+    throw new Error("Conversation ID is required for sendMessage");
+  }
 
-  const page = await browser.newPage();
+  if (!message) {
+    throw new Error("Message text is required for sendMessage");
+  }
 
-  await page.goto("about:blank");
+  const headers = {
+    "Content-Type": "application/json",
+    "x-api-key": process.env.TAVUS_API_KEY,
+  };
 
-  // Inject Daily SDK
-  await page.addScriptTag({
-    url: "https://unpkg.com/@daily-co/daily-js",
-  });
+  const data = {
+    replica_id: "r665388ec672",
+    conversation_name: "Read the News",
+    persona_id: "pc5bb1a13fd1",
+    conversational_context: "You are a news reader. Read out the news as the scripts keep coming.",
+    message_type: "conversation",
+    event_type: "conversation.respond",
+    conversation_id: conversationId,
+    properties: {
+      text: message
+    }
+  };
 
-  // Wait until Daily is available
-  await page.waitForFunction(() => typeof window.Daily !== "undefined");
+  try {
+    console.log("Sending message to Tavus API...");
+    const response = await axios.post(
+      "https://tavusapi.com/v2/conversations",
+      data,
+      { headers }
+    );
 
-  console.log("Daily.js loaded");
-
-  await page.evaluate(
-    async ({ conversationId, url, message }) => {
-      const wait = (ms) => new Promise((r) => setTimeout(r, ms));
-
-      const call = window.Daily.createFrame({
-        iframeStyle: {
-          position: "fixed",
-          width: "1px",
-          height: "1px",
-          left: "-100px",
-          top: "-100px",
-        },
-      });
-
-      await call.join({ url });
-
-      // Wait for join confirmation
-      await wait(3000);
-
-      const interaction = {
-        message_type: "conversation",
-        event_type: "conversation.echo",
-        conversation_id: conversationId,
-        properties: {
-          text: message,
-        },
-      };
-
-      call.sendAppMessage(interaction, "*");
-
-      await wait(2000); // Let message send
-    },
-    { conversationId, url, message },
-  );
-
-  await browser.close();
-  console.log("Message sent successfully.");
+    console.log("Message sent successfully:", response.status);
+    return { success: true, conversationId, response: response.data };
+  } catch (error) {
+    console.error(
+      "Failed to send message:",
+      error.response?.data || error.message
+    );
+    throw error;
+  }
 };

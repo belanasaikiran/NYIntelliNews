@@ -14,7 +14,7 @@ export const fetchFromGoogle = async (query, numResults = 30) => {
         key: GOOGLE_API_KEY,
         cx: GOOGLE_CSE_ID,
         q: query,
-        num: Math.min(numResults, 10),
+        num: Math.min(numResults, 15),
       },
     });
 

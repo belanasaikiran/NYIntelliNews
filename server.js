@@ -35,6 +35,7 @@ app.get("/api/initConv", async (req, res) => {
   const initConversation = await createTavusConversation();
   globalConvId = initConversation.conversationId;
   globalConvURL = initConversation.conversationUrl;
+  // globalConvURL = "https://google.com";
   res.status(200).json({ url: globalConvURL });
 });
 
@@ -128,7 +129,9 @@ app.post("/summarize", async (req, res) => {
 
     console.log("Summary Generated:", summary);
 
-    await sendMessage(globalConvId, globalConvURL, summary);
+    // Run sendMessage in background without blocking the response
+
+    // sendMessage(globalConvId, globalConvURL, summary);
 
     res.json({ relatedArticlesRaw, summary, givenTitle });
   } catch (error) {
