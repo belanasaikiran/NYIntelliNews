@@ -31,18 +31,6 @@ Video Generation: Tavus API integration for persona-based video summaries
 
 Video Embedding: Daily.co SDK for seamless video integration
 
-### Project Structure
-```bash
-pages/: Contains Next.js pages for routing and rendering.
-
-components/: Reusable React components for UI elements.
-
-utils/: Utility functions for data fetching and processing.
-
-public/: Static assets such as images and videos.
-
-styles/: CSS and styling files for the application.
-```
 
 ### Installation
 Clone the repository:
