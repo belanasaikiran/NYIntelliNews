@@ -8,6 +8,8 @@ Here's the Figma Link: [Figma](https://www.figma.com/board/uy3R0XK8wIePxZdzSKad3
 
 ![Idea.png](./idea.png)
 
+### Demo: [NYC IntelliNews - Meta Llama4 Hackathon](https://youtu.be/7HTO7GOZht8)
+
 
 ### Features
 Topic Selection Interface: Users can choose from a variety of news topics to receive tailored summaries.
@@ -42,7 +44,7 @@ public/: Static assets such as images and videos.
 styles/: CSS and styling files for the application.
 ```
 
-🔧 Installation
+### Installation
 Clone the repository:
 
 ```bash
@@ -50,13 +52,13 @@ git clone https://github.com/belanasaikiran/NYIntelliNews.git
 cd NYIntelliNews
 ```
 
-Install dependencies:
+**Install dependencies:**
 
 ```bash
 npm install
 ```
 
-Set up environment variables:
+### Set up environment variables:
 
 Create a .env.local file in the root directory.
 
