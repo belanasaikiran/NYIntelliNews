@@ -6,10 +6,10 @@ NYIntelliNews is an AI-powered news summarization platform that offers users a d
 ### The IDEA:
 Here's the Figma Link: [Figma](https://www.figma.com/board/uy3R0XK8wIePxZdzSKad3Y/Hack?node-id=0-1&t=HHsxqQ5PASfQJeMa-1)
 
-![Idea.png](./Idea.png)
+![Idea.png](./idea.png)
 
 
-🚀 Features
+### Features
 Topic Selection Interface: Users can choose from a variety of news topics to receive tailored summaries.
 
 AI-Generated Video Summaries: Utilizes Tavus personas to deliver engaging video summaries of news articles.
@@ -18,7 +18,7 @@ Interactive Chat Interface: Provides a conversational platform for users to delv
 
 Confidence Scoring: Assigns confidence levels to summaries, indicating the reliability of the information presented.
 
-🧰 Tech Stack
+### Tech Stack
 Frontend: Next.js, React
 
 Backend: Node.js, Express
@@ -29,7 +29,7 @@ Video Generation: Tavus API integration for persona-based video summaries
 
 Video Embedding: Daily.co SDK for seamless video integration
 
-📁 Project Structure
+### Project Structure
 ```bash
 pages/: Contains Next.js pages for routing and rendering.
 
@@ -68,7 +68,7 @@ Run the development server:
 npm run dev
 ```
 
-📝 Usage:
+### Usage:
 
 Upon launching the application:
 
